@@ -1,0 +1,9 @@
+.canvas-view {
+}
+
+.canvas-view__canvas {
+    /* max-width: 500px; */
+    border: 1px solid black;
+    display: block;
+    cursor: none;
+}
