@@ -10,8 +10,9 @@ export class SquareNode {
     private height: number,
     private color: string,
     private initColor: string = color,
-    private dragX = 0,
-    private dragY = 0
+    private dragX: number = 0,
+    private dragY: number = 0,
+    private padding: number = 20
   ) {
     this.id = Date.now().toString();
   }
@@ -61,23 +62,43 @@ export class SquareNode {
     this.dragY = cursor.y - this.y;
   }
 
-  public connectToTop(): Point {
-    return { x: this.x + this.width / 2, y: this.y };
+  public connectToTop(): Point[] {
+    const x = this.x + this.width / 2;
+    const y = this.y;
+    return [
+      { x, y },
+      { x, y: y - this.padding },
+    ];
   }
 
-  public connectToBottom(): Point {
-    return { x: this.x + this.width / 2, y: this.y + this.height };
+  public connectToBottom(): Point[] {
+    const x = this.x + this.width / 2;
+    const y = this.y + this.height;
+    return [
+      { x, y },
+      { x, y: y + this.padding },
+    ];
   }
 
-  public connectToLeft(): Point {
-    return { x: this.x, y: this.y + this.height / 2 };
+  public connectToLeft(): Point[] {
+    const x = this.x;
+    const y = this.y + this.height / 2;
+    return [
+      { x, y },
+      { x: x - this.padding, y },
+    ];
   }
 
-  public connectToRight(): Point {
-    return { x: this.x + this.width, y: this.y + this.height / 2 };
+  public connectToRight(): Point[] {
+    const x = this.x + this.width;
+    const y = this.y + this.height / 2;
+    return [
+      { x, y },
+      { x: x + this.padding, y },
+    ];
   }
 
-  public calculateConnectors(other: SquareNode): { from: Point; to: Point } {
+  public calculateConnectors(other: SquareNode): Point[] {
     return other.calculatePositions(
       this.x,
       this.y,
@@ -93,16 +114,16 @@ export class SquareNode {
     width: number,
     height: number,
     other: SquareNode
-  ): { from: Point; to: Point } {
+  ): Point[] {
     if (y > this.y + height) {
-      return { from: other.connectToTop(), to: this.connectToBottom() };
+      return [...other.connectToTop(), ...this.connectToBottom().reverse()];
     }
     if (y + this.height < this.y) {
-      return { from: other.connectToBottom(), to: this.connectToTop() };
+      return [...other.connectToBottom(), ...this.connectToTop().reverse()];
     }
     if (x < this.x) {
-      return { from: other.connectToRight(), to: this.connectToLeft() };
+      return [...other.connectToRight(), ...this.connectToLeft().reverse()];
     }
-    return { from: other.connectToLeft(), to: this.connectToRight() };
+    return [...other.connectToLeft(), ...this.connectToRight().reverse()];
   }
 }
