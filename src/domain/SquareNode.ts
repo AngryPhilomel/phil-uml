@@ -1,20 +1,27 @@
 import { Cursor } from "./Cursor";
+import { Bottom, ConnectorPoint, Left, Right, Top } from "./ConnectorPoint";
 import { Point } from "./shared-types";
+import UML from "./UML";
 
 export class SquareNode {
   private id: string;
+  private initColor: string = "blue";
+  private dragX: number = 0;
+  private dragY: number = 0;
+  private padding: number = 100;
+  private connectorTop: ConnectorPoint = new ConnectorPoint(new Top(), this);
+  private connectorBottom: ConnectorPoint = new ConnectorPoint(new Bottom(), this);
+  private connectorLeft: ConnectorPoint = new ConnectorPoint(new Left(), this);
+  private connectorRight: ConnectorPoint = new ConnectorPoint(new Right(), this);
   constructor(
     private x: number,
     private y: number,
     private width: number,
     private height: number,
-    private color: string,
-    private initColor: string = color,
-    private dragX: number = 0,
-    private dragY: number = 0,
-    private padding: number = 20
+    private color: string
   ) {
     this.id = Date.now().toString();
+    this.initColor = color;
   }
 
   public draw(g: CanvasRenderingContext2D) {
@@ -23,24 +30,53 @@ export class SquareNode {
     g.strokeStyle = this.color;
     g.strokeRect(this.x, this.y, this.width, this.height);
     g.fillRect(this.x, this.y, this.width, this.height);
+    this.drawConnectorPoints(g);
   }
 
-  public checkCollision(cursor: Cursor): boolean {
+  private drawConnectorPoints(g: CanvasRenderingContext2D) {
+    [
+      this.connectorTop,
+      this.connectorBottom,
+      this.connectorRight,
+      this.connectorLeft,
+    ].map((connector) => { 
+      connector.draw(g, this.x, this.y, this.width, this.height)
+    });
+  }
+
+  public checkCollision(cursor: Cursor): SquareNode | ConnectorPoint | null {
     if (
       this.checkHorizontalCollision(cursor) &&
       this.checkVerticalCollision(cursor)
     ) {
-      return true;
+      const connector = this.checkConnectorCollisions(cursor);
+      if (connector) {
+        return connector;
+      }
+      this.hover();
+      return this;
     } else {
-      return false;
+      this.unhover();
+      return null;
     }
   }
 
-  public hover() {
+  private checkConnectorCollisions(cursor: Cursor): ConnectorPoint | null {
+    return [
+      this.connectorBottom,
+      this.connectorTop,
+      this.connectorLeft,
+      this.connectorRight,
+    ].filter((connector) => {
+      return connector.checkCollision(cursor);
+    })[0];
+  }
+
+  private hover() {
     this.color = "blue";
   }
 
-  public unhover() {
+  private unhover() {
     this.color = this.initColor;
   }
 
@@ -57,9 +93,13 @@ export class SquareNode {
     this.y = cursor.y - this.dragY;
   }
 
-  public setDragPoint(cursor: Cursor) {
+  public pointerDown(cursor: Cursor) {
     this.dragX = cursor.x - this.x;
     this.dragY = cursor.y - this.y;
+  }
+
+  public pointerUp(cursor: Cursor, hover: SquareNode | ConnectorPoint | null, uml: UML) {
+    return;
   }
 
   public connectToTop(): Point[] {
