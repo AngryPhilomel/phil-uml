@@ -1,10 +1,10 @@
-import { Connector } from "./Connector";
 import { Cursor } from "./Cursor";
 import { SquareNode } from "./SquareNode";
 import UML from "./UML";
+import { Interactive } from "./interfaces";
 import { Point } from "./shared-types";
 
-export class ConnectorPoint {
+export class ConnectorPoint implements Interactive {
   private color: string = "#0000FF55";
   private radius: number = 5;
   private x: number = 0;
@@ -34,11 +34,7 @@ export class ConnectorPoint {
     return;
   }
 
-  public pointerUp(
-    cursor: Cursor,
-    hover: SquareNode | ConnectorPoint | null,
-    uml: UML
-  ) {
+  public pointerUp(cursor: Cursor, hover: Interactive | null, uml: UML) {
     if (hover === null) return;
     if (hover instanceof ConnectorPoint) {
       uml.addNewConnector(this.parent, hover.parent);
@@ -73,7 +69,7 @@ export class ConnectorPoint {
     g.closePath();
   }
 
-  public checkCollision(cursor: Cursor): ConnectorPoint | null {
+  public checkCollision(cursor: Cursor): Interactive | null {
     const radiuses = cursor.radius + this.radius;
     const length = Math.sqrt(
       Math.pow(cursor.x - this.x, 2) + Math.pow(cursor.y - this.y, 2)

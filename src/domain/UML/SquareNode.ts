@@ -2,17 +2,26 @@ import { Cursor } from "./Cursor";
 import { Bottom, ConnectorPoint, Left, Right, Top } from "./ConnectorPoint";
 import { Point } from "./shared-types";
 import UML from "./UML";
+import { Interactive } from "./interfaces";
+import { NodeTitle } from "./NodeTitle";
 
-export class SquareNode {
+export class SquareNode implements Interactive {
   private id: string;
   private initColor: string = "blue";
+  private title: NodeTitle = new NodeTitle("Title");
   private dragX: number = 0;
   private dragY: number = 0;
   private padding: number = 100;
   private connectorTop: ConnectorPoint = new ConnectorPoint(new Top(), this);
-  private connectorBottom: ConnectorPoint = new ConnectorPoint(new Bottom(), this);
+  private connectorBottom: ConnectorPoint = new ConnectorPoint(
+    new Bottom(),
+    this
+  );
   private connectorLeft: ConnectorPoint = new ConnectorPoint(new Left(), this);
-  private connectorRight: ConnectorPoint = new ConnectorPoint(new Right(), this);
+  private connectorRight: ConnectorPoint = new ConnectorPoint(
+    new Right(),
+    this
+  );
   constructor(
     private x: number,
     private y: number,
@@ -25,12 +34,17 @@ export class SquareNode {
   }
 
   public draw(g: CanvasRenderingContext2D) {
+    this.drawNode(g);
+    this.title.draw(g, this.x, this.y, this.width, this.height);
+    this.drawConnectorPoints(g);
+  }
+
+  public drawNode(g: CanvasRenderingContext2D) {
     g.lineWidth = 3;
     g.fillStyle = "#FFFFFF";
     g.strokeStyle = this.color;
     g.strokeRect(this.x, this.y, this.width, this.height);
     g.fillRect(this.x, this.y, this.width, this.height);
-    this.drawConnectorPoints(g);
   }
 
   private drawConnectorPoints(g: CanvasRenderingContext2D) {
@@ -39,12 +53,12 @@ export class SquareNode {
       this.connectorBottom,
       this.connectorRight,
       this.connectorLeft,
-    ].map((connectorPoint) => { 
-      connectorPoint.draw(g, this.x, this.y, this.width, this.height)
+    ].map((connectorPoint) => {
+      connectorPoint.draw(g, this.x, this.y, this.width, this.height);
     });
   }
 
-  public checkCollision(cursor: Cursor): SquareNode | ConnectorPoint | null {
+  public checkCollision(cursor: Cursor): Interactive | null {
     if (
       this.checkHorizontalCollision(cursor) &&
       this.checkVerticalCollision(cursor)
@@ -98,7 +112,7 @@ export class SquareNode {
     this.dragY = cursor.y - this.y;
   }
 
-  public pointerUp(cursor: Cursor, hover: SquareNode | ConnectorPoint | null, uml: UML) {
+  public pointerUp(cursor: Cursor, hover: Interactive | null, uml: UML) {
     return;
   }
 

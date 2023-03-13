@@ -1,8 +1,8 @@
 import { Canvas } from "./Canvas";
 import { Connector } from "./Connector";
-import { ConnectorPoint } from "./ConnectorPoint";
 import { Cursor } from "./Cursor";
 import { SquareNode } from "./SquareNode";
+import { Interactive } from "./interfaces";
 
 export default class UML {
   private canvas: Canvas;
@@ -22,8 +22,8 @@ export default class UML {
     new Connector(this.nodes[3], this.nodes[0]),
   ];
 
-  private hovered: SquareNode | ConnectorPoint | null = null;
-  private active: SquareNode | ConnectorPoint | null = null;
+  private hovered: Interactive | null = null;
+  private active: Interactive | null = null;
 
   constructor(private id: string) {
     this.canvas = new Canvas(this.id);

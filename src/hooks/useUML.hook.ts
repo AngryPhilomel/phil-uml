@@ -1,4 +1,4 @@
-import UML from "@/domain/UML";
+import UML from "@/domain/UML/UML";
 import { useEffect, useRef } from "react";
 
 export const useUML = (id: string) => {
