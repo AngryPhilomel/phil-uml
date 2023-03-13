@@ -52,15 +52,16 @@ export default class UML {
 
     this.nodes.forEach((node) => {
       node.draw(this.canvas.ctx);
+      this.connectors.forEach((connector) => {
+        connector.draw(this.canvas.ctx);
+      });
       this.active?.drag(this.cursor, this.canvas.ctx)
       this.hovered = node.checkCollision(this.cursor) || this.hovered;
       if (!this.hovered?.checkCollision(this.cursor)) {
         this.hovered = null;
       }
     });
-    this.connectors.forEach((connector) => {
-      connector.draw(this.canvas.ctx);
-    });
+    
 
     this.cursor?.draw(this.canvas.ctx);
 

@@ -20,7 +20,7 @@ export class ConnectorPoint {
   }
 
   private unhover() {
-    this.color = "#0000FF55";
+    this.color = "#0000FF33";
   }
 
   public drag(cursor: Cursor, g: CanvasRenderingContext2D) {
@@ -70,7 +70,7 @@ export class ConnectorPoint {
     g.beginPath();
     g.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
     g.fill();
-    g.stroke();
+    g.closePath();
   }
 
   public checkCollision(cursor: Cursor): ConnectorPoint | null {

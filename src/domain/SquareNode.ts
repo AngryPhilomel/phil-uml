@@ -39,8 +39,8 @@ export class SquareNode {
       this.connectorBottom,
       this.connectorRight,
       this.connectorLeft,
-    ].map((connector) => { 
-      connector.draw(g, this.x, this.y, this.width, this.height)
+    ].map((connectorPoint) => { 
+      connectorPoint.draw(g, this.x, this.y, this.width, this.height)
     });
   }
 
@@ -65,8 +65,8 @@ export class SquareNode {
     return [
       this.connectorBottom,
       this.connectorTop,
-      this.connectorLeft,
       this.connectorRight,
+      this.connectorLeft,
     ].filter((connector) => {
       return connector.checkCollision(cursor);
     })[0];
