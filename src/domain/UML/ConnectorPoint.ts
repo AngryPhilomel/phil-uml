@@ -5,7 +5,7 @@ import { Interactive } from "./interfaces";
 import { Point } from "./shared-types";
 
 export class ConnectorPoint implements Interactive {
-  private color: string = "#0000FF55";
+  private color: string = "#0000FF33";
   private radius: number = 5;
   private x: number = 0;
   private y: number = 0;
@@ -69,7 +69,7 @@ export class ConnectorPoint implements Interactive {
     g.closePath();
   }
 
-  public checkCollision(cursor: Cursor): Interactive | null {
+  public checkCollision(cursor: Cursor, g: CanvasRenderingContext2D): Interactive | null {
     const radiuses = cursor.radius + this.radius;
     const length = Math.sqrt(
       Math.pow(cursor.x - this.x, 2) + Math.pow(cursor.y - this.y, 2)

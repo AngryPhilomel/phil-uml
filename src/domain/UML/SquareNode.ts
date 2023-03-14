@@ -4,6 +4,7 @@ import { Point } from "./shared-types";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
 import { NodeTitle } from "./NodeTitle";
+import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 
 export class SquareNode implements Interactive {
   private id: string;
@@ -12,16 +13,13 @@ export class SquareNode implements Interactive {
   private dragX: number = 0;
   private dragY: number = 0;
   private padding: number = 100;
-  private connectorTop: ConnectorPoint = new ConnectorPoint(new Top(), this);
-  private connectorBottom: ConnectorPoint = new ConnectorPoint(
-    new Bottom(),
-    this
-  );
-  private connectorLeft: ConnectorPoint = new ConnectorPoint(new Left(), this);
-  private connectorRight: ConnectorPoint = new ConnectorPoint(
-    new Right(),
-    this
-  );
+  private collisionStrategy: CollisionStrategy = new SquareCollision();
+  private connectorPoints: { [direction: string]: ConnectorPoint } = {
+    top: new ConnectorPoint(new Top(), this),
+    bottom: new ConnectorPoint(new Bottom(), this),
+    left: new ConnectorPoint(new Left(), this),
+    right: new ConnectorPoint(new Right(), this),
+  };
   constructor(
     private x: number,
     private y: number,
@@ -36,7 +34,6 @@ export class SquareNode implements Interactive {
   public draw(g: CanvasRenderingContext2D) {
     this.drawNode(g);
     this.title.draw(g, this.x, this.y, this.width, this.height);
-    this.drawConnectorPoints(g);
   }
 
   public drawNode(g: CanvasRenderingContext2D) {
@@ -48,25 +45,31 @@ export class SquareNode implements Interactive {
   }
 
   private drawConnectorPoints(g: CanvasRenderingContext2D) {
-    [
-      this.connectorTop,
-      this.connectorBottom,
-      this.connectorRight,
-      this.connectorLeft,
-    ].map((connectorPoint) => {
+    Object.values(this.connectorPoints).map((connectorPoint) => {
       connectorPoint.draw(g, this.x, this.y, this.width, this.height);
     });
   }
 
-  public checkCollision(cursor: Cursor): Interactive | null {
+  public checkCollision(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D
+  ): Interactive | null {
     if (
-      this.checkHorizontalCollision(cursor) &&
-      this.checkVerticalCollision(cursor)
+      this.collisionStrategy.checkCollision(
+        cursor,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      )
     ) {
-      const connector = this.checkConnectorCollisions(cursor);
-      if (connector) {
-        return connector;
-      }
+      this.drawConnectorPoints(g);
+
+      const connector = this.checkConnectorPointsCollisions(cursor, g);
+      if (connector) return connector;
+
+      const title = this.checkTitleCollision(cursor, g);
+      if (title) return title;
       this.hover();
       return this;
     } else {
@@ -75,31 +78,27 @@ export class SquareNode implements Interactive {
     }
   }
 
-  private checkConnectorCollisions(cursor: Cursor): ConnectorPoint | null {
-    return [
-      this.connectorBottom,
-      this.connectorTop,
-      this.connectorRight,
-      this.connectorLeft,
-    ].filter((connector) => {
-      return connector.checkCollision(cursor);
+  private checkConnectorPointsCollisions(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D
+  ): ConnectorPoint | null {
+    return Object.values(this.connectorPoints).filter((connector) => {
+      return connector.checkCollision(cursor, g);
     })[0];
   }
 
+  private checkTitleCollision(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D
+  ): NodeTitle | null {
+    return this.title.checkCollision(cursor, g);
+  }
   private hover() {
     this.color = "blue";
   }
 
   private unhover() {
     this.color = this.initColor;
-  }
-
-  private checkHorizontalCollision(cursor: Cursor): boolean {
-    return cursor.x > this.x && cursor.x < this.x + this.width;
-  }
-
-  private checkVerticalCollision(cursor: Cursor): boolean {
-    return cursor.y > this.y && cursor.y < this.y + this.height;
   }
 
   public drag(cursor: Cursor) {

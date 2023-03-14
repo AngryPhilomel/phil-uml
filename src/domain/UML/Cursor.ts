@@ -1,11 +1,15 @@
 export class Cursor {
     public x: number = 0;
     public y: number = 0;
-    public radius: number = 10;
-    constructor(private canvas: HTMLCanvasElement) {
+    public dX: number = 0;
+    public dY: number = 0;
+    public radius: number = 7;
+    constructor(public canvas: HTMLCanvasElement) {
         this.canvas.addEventListener('mousemove', (e) => {
             this.x = e.offsetX;
             this.y = e.offsetY;
+            this.dX = e.clientX - e.offsetX;
+            this.dY = e.clientY - e.offsetY;
         })
     }
     

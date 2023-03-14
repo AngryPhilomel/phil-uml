@@ -10,9 +10,9 @@ export default class UML {
 
   private nodes: SquareNode[] = [
     new SquareNode(50, 50, 100, 50, "#00FF00"),
-    new SquareNode(250, 50, 100, 50, "#FF0000"),
+    new SquareNode(250, 100, 100, 50, "#FF0000"),
     new SquareNode(250, 250, 100, 100, "#FF00FF"),
-    new SquareNode(50, 150, 50, 50, "#00FFFF"),
+    new SquareNode(50, 150, 100, 50, "#00FFFF"),
   ];
 
   private connectors: Connector[] = [
@@ -41,7 +41,7 @@ export default class UML {
       this.active = null;
     });
     this.canvas.canvasElement.addEventListener("click", (e) => {
-      // console.log(this.hovered);
+      console.log(this.hovered);
     });
 
     window.requestAnimationFrame(() => this.animate());
@@ -56,8 +56,8 @@ export default class UML {
         connector.draw(this.canvas.ctx);
       });
       this.active?.drag(this.cursor, this.canvas.ctx)
-      this.hovered = node.checkCollision(this.cursor) || this.hovered;
-      if (!this.hovered?.checkCollision(this.cursor)) {
+      this.hovered = node.checkCollision(this.cursor, this.canvas.ctx) || this.hovered;
+      if (!this.hovered?.checkCollision(this.cursor, this.canvas.ctx)) {
         this.hovered = null;
       }
     });
@@ -69,8 +69,7 @@ export default class UML {
   }
 
   public addNewNode() {
-    this.nodes.push(new SquareNode(0, 0, 50, 50, this.getRandomColor()));
-    console.log(this.nodes);
+    this.nodes.push(new SquareNode(10, 10, 100, 50, this.getRandomColor()));
   }
 
   public addNewConnector(from:SquareNode, to:SquareNode) {
