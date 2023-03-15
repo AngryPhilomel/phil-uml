@@ -55,13 +55,12 @@ export class SquareNode implements Interactive {
     g: CanvasRenderingContext2D
   ): Interactive | null {
     if (
-      this.collisionStrategy.checkCollision(
-        cursor,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      )
+      this.collisionStrategy.checkCollision(cursor, {
+        x: this.x,
+        y: this.y,
+        width: this.width,
+        height: this.height,
+      })
     ) {
       this.drawConnectorPoints(g);
 

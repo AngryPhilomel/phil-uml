@@ -1,3 +1,7 @@
+import {
+  CircleCollision,
+  CollisionStrategy,
+} from "./CollisionStrategy";
 import { Cursor } from "./Cursor";
 import { SquareNode } from "./SquareNode";
 import UML from "./UML";
@@ -9,6 +13,7 @@ export class ConnectorPoint implements Interactive {
   private radius: number = 5;
   private x: number = 0;
   private y: number = 0;
+  private collisionStrategy: CollisionStrategy = new CircleCollision();
 
   constructor(
     private calculateStrategy: CalculateStrategy,
@@ -69,12 +74,21 @@ export class ConnectorPoint implements Interactive {
     g.closePath();
   }
 
-  public checkCollision(cursor: Cursor, g: CanvasRenderingContext2D): Interactive | null {
+  public checkCollision(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D
+  ): Interactive | null {
     const radiuses = cursor.radius + this.radius;
     const length = Math.sqrt(
       Math.pow(cursor.x - this.x, 2) + Math.pow(cursor.y - this.y, 2)
     );
-    if (length < radiuses) {
+    if (
+      this.collisionStrategy.checkCollision(cursor, {
+        x: this.x,
+        y: this.y,
+        radius: this.radius,
+      })
+    ) {
       this.hover();
       return this;
     } else {

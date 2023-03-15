@@ -68,18 +68,15 @@ export class NodeTitle implements Interactive {
     });
     cursor.canvas.parentElement?.prepend(input);
   }
-  public pointerDown(cursor: Cursor) {
-   
-  }
+  public pointerDown(cursor: Cursor) {}
   public drag(cursor: Cursor, ctx: CanvasRenderingContext2D) {}
   public checkCollision(cursor: Cursor, g: CanvasRenderingContext2D) {
-    return this.collisionStrategy.checkCollision(
-      cursor,
-      this.x,
-      this.y,
-      this.width,
-      this.height
-    )
+    return this.collisionStrategy.checkCollision(cursor, {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
+    })
       ? this
       : null;
   }
