@@ -10,9 +10,9 @@ export default class UML {
 
   private nodes: SquareNode[] = [
     new SquareNode(50, 50, 100, 50, "#00FF00"),
-    new SquareNode(250, 100, 100, 50, "#FF0000"),
-    new SquareNode(250, 250, 100, 100, "#FF00FF"),
-    new SquareNode(50, 150, 100, 50, "#00FFFF"),
+    new SquareNode(300, 100, 100, 50, "#FF0000"),
+    new SquareNode(300, 250, 100, 100, "#FF00FF"),
+    new SquareNode(50, 250, 100, 50, "#00FFFF"),
   ];
 
   private connectors: Connector[] = [

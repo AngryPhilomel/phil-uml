@@ -3,12 +3,13 @@ import { Cursor } from "./Cursor";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
 
-export class NodeTitle implements Interactive {
+export class NodeProperty implements Interactive {
   private padding: number = 5;
   private x: number = 0;
   private y: number = 0;
   public width: number = 0;
   public height: number = 0;
+  private leftMargin: number = 20;
   private collisionStrategy: CollisionStrategy = new SquareCollision();
   constructor(private text: string) {}
 
@@ -22,8 +23,8 @@ export class NodeTitle implements Interactive {
     g.fillStyle = "#000";
     g.font = "18px serif";
     g.textBaseline = "hanging";
-    g.textAlign = "center";
-    g.fillText(this.text, x + width / 2, y + this.padding);
+    g.textAlign = "left";
+    g.fillText(this.text, x + this.leftMargin , y + this.padding);
 
     const {
       fontBoundingBoxDescent,
@@ -32,7 +33,7 @@ export class NodeTitle implements Interactive {
       width: textWidth,
     } = g.measureText(this.text);
 
-    this.x = x + width / 2 - actualBoundingBoxLeft;
+    this.x = x + this.leftMargin;
     this.y = y;
     this.width = textWidth;
     this.height = fontBoundingBoxDescent + fontBoundingBoxAscent + this.padding;

@@ -1,4 +1,3 @@
-import { CollisionStrategy } from "./CollisionStrategy";
 import { Cursor } from "./Cursor";
 import UML from "./UML";
 

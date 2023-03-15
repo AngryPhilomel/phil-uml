@@ -5,14 +5,22 @@ import UML from "./UML";
 import { Interactive } from "./interfaces";
 import { NodeTitle } from "./NodeTitle";
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
+import { NodeProperty } from "./NodeProperty";
 
 export class SquareNode implements Interactive {
   private id: string;
   private initColor: string = "blue";
   private title: NodeTitle = new NodeTitle("Title");
+  private properties: NodeProperty[] = [
+    new NodeProperty("property1property1"),
+    new NodeProperty("property2"),
+    new NodeProperty("property3"),
+  ];
   private dragX: number = 0;
   private dragY: number = 0;
-  private padding: number = 100;
+  private padding: number = 50;
+  private connectorPadding: number = 100;
+  private rawHeight: number = 21;
   private collisionStrategy: CollisionStrategy = new SquareCollision();
   private connectorPoints: { [direction: string]: ConnectorPoint } = {
     top: new ConnectorPoint(new Top(), this),
@@ -32,8 +40,38 @@ export class SquareNode implements Interactive {
   }
 
   public draw(g: CanvasRenderingContext2D) {
+    this.updateSize();
     this.drawNode(g);
     this.title.draw(g, this.x, this.y, this.width, this.height);
+    this.drawSeparator(g, this.x, this.y + this.title.height, this.width)
+    this.properties.forEach((property, index) => {
+      property.draw(
+        g,
+        this.x,
+        this.y + this.title.height + index * 20,
+        this.width,
+        this.height
+      );
+    });
+  }
+
+  private drawSeparator(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number
+  ) {
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + width, y);
+    g.stroke();
+  }
+
+  private updateSize() {
+    this.height = this.title.height + this.rawHeight * this.properties.length;
+    this.width =
+      Math.max(this.title.width, ...this.properties.map((p) => p.width)) +
+      this.padding;
   }
 
   public drawNode(g: CanvasRenderingContext2D) {
@@ -69,6 +107,8 @@ export class SquareNode implements Interactive {
 
       const title = this.checkTitleCollision(cursor, g);
       if (title) return title;
+      const property = this.checkPropertyCollision(cursor, g);
+      if (property) return property;
       this.hover();
       return this;
     } else {
@@ -92,6 +132,16 @@ export class SquareNode implements Interactive {
   ): NodeTitle | null {
     return this.title.checkCollision(cursor, g);
   }
+
+  private checkPropertyCollision(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D
+  ): NodeProperty | null {
+    return this.properties.filter((property) => {
+      return property.checkCollision(cursor, g);
+    })[0];
+  }
+
   private hover() {
     this.color = "blue";
   }
@@ -119,7 +169,7 @@ export class SquareNode implements Interactive {
     const y = this.y;
     return [
       { x, y },
-      { x, y: y - this.padding },
+      { x, y: y - this.connectorPadding },
     ];
   }
 
@@ -128,7 +178,7 @@ export class SquareNode implements Interactive {
     const y = this.y + this.height;
     return [
       { x, y },
-      { x, y: y + this.padding },
+      { x, y: y + this.connectorPadding },
     ];
   }
 
@@ -137,7 +187,7 @@ export class SquareNode implements Interactive {
     const y = this.y + this.height / 2;
     return [
       { x, y },
-      { x: x - this.padding, y },
+      { x: x - this.connectorPadding, y },
     ];
   }
 
@@ -146,7 +196,7 @@ export class SquareNode implements Interactive {
     const y = this.y + this.height / 2;
     return [
       { x, y },
-      { x: x + this.padding, y },
+      { x: x + this.connectorPadding, y },
     ];
   }
 

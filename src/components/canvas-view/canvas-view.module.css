@@ -7,3 +7,13 @@
     display: block;
     cursor: none;
 }
+
+.canvas-view > input {
+    width: 100%;
+    font-family: serif;
+    font-size: 18px;
+    line-height: 26px;
+    position: fixed;
+    border: none;
+    outline: none;
+}
