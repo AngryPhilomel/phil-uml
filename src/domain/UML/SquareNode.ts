@@ -12,7 +12,7 @@ export class SquareNode implements Interactive {
   private initColor: string = "blue";
   private title: NodeTitle = new NodeTitle("Title");
   private properties: NodeProperty[] = [
-    new NodeProperty("property1property1"),
+    new NodeProperty("property1property1", false),
     new NodeProperty("property2"),
     new NodeProperty("property3"),
   ];
@@ -136,10 +136,10 @@ export class SquareNode implements Interactive {
   private checkPropertyCollision(
     cursor: Cursor,
     g: CanvasRenderingContext2D
-  ): NodeProperty | null {
-    return this.properties.filter((property) => {
+  ): Interactive | null {
+    return this.properties.map((property) => {
       return property.checkCollision(cursor, g);
-    })[0];
+    }).filter((coll) => coll)[0];
   }
 
   private hover() {
