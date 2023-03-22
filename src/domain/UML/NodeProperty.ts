@@ -2,10 +2,12 @@ import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 import { Cursor } from "./Cursor";
 import { Input } from "./Input";
 import { PropertyAccess } from "./PropertyAccess";
+import { AlignLeft, TextRender } from "./TextRender";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
 
 export class NodeProperty implements Interactive {
+  private textRender: TextRender = new TextRender(new AlignLeft());
   private padding: number = 5;
   private x: number = 0;
   private y: number = 0;
@@ -25,25 +27,21 @@ export class NodeProperty implements Interactive {
     width: number,
     height: number
   ) {
-    g.fillStyle = "#000";
-    g.font = "18px serif";
-    g.textBaseline = "hanging";
-    g.textAlign = "left";
-    g.fillText(this.text, x + this.leftMargin, y + this.padding);
-
-    const {
-      fontBoundingBoxDescent,
-      fontBoundingBoxAscent,
-      actualBoundingBoxLeft,
-      width: textWidth,
-    } = g.measureText(this.text);
-
-    this.propertyAccess.draw(g, x, y + this.padding, width, height);
-
-    this.x = x + this.leftMargin;
-    this.y = y;
-    this.width = textWidth;
-    this.height = fontBoundingBoxDescent + fontBoundingBoxAscent + this.padding;
+    const measure = this.textRender.draw(
+      g,
+      x,
+      y,
+      width,
+      height,
+      this.leftMargin,
+      this.padding,
+      this.text
+    );
+    this.x = measure.x;
+    this.y = measure.y;
+    this.width = measure.width;
+    this.height = measure.height;
+    this.propertyAccess.draw(g, x, y, width, height);
   }
 
   public pointerUp(cursor: Cursor, hovered: Interactive | null, uml: UML) {}

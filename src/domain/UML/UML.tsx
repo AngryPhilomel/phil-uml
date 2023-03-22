@@ -43,6 +43,9 @@ export default class UML {
     this.canvas.canvasElement.addEventListener("click", (e) => {
       console.log(this.hovered);
     });
+    this.canvas.canvasElement.addEventListener("dblclick", (e) => {
+      e.preventDefault()
+    });
 
     window.requestAnimationFrame(() => this.animate());
   }

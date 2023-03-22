@@ -1,9 +1,11 @@
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 import { Cursor } from "./Cursor";
+import { AlignLeft, TextRender } from "./TextRender";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
 
 export class PropertyAccess implements Interactive {
+  private textRender: TextRender = new TextRender(new AlignLeft());
   private padding: number = 5;
   private x: number = 0;
   private y: number = 0;
@@ -11,8 +13,11 @@ export class PropertyAccess implements Interactive {
   public height: number = 0;
   private leftMargin: number = 10;
   private collisionStrategy: CollisionStrategy = new SquareCollision();
-  
-  constructor(private access: boolean = true) {}
+  private text: string;
+
+  constructor(private access: boolean = true) {
+    this.text = this.access ? '+' : '-'
+  }
 
   public draw(
     g: CanvasRenderingContext2D,
@@ -21,23 +26,20 @@ export class PropertyAccess implements Interactive {
     width: number,
     height: number
   ) {
-    g.fillStyle = "#000";
-    g.font = "18px serif";
-    g.textBaseline = "hanging";
-    g.textAlign = "left";
-    g.fillText(this.access ? '+' : '-' , x + this.leftMargin , y);
-
-    const {
-      fontBoundingBoxDescent,
-      fontBoundingBoxAscent,
-      actualBoundingBoxLeft,
-      width: textWidth,
-    } = g.measureText('+');
-
-    this.x = x + this.leftMargin;
-    this.y = y;
-    this.width = textWidth;
-    this.height = fontBoundingBoxDescent + fontBoundingBoxAscent + this.padding;
+    const measure = this.textRender.draw(
+      g,
+      x,
+      y,
+      width,
+      height,
+      this.leftMargin,
+      this.padding,
+      this.text
+    );
+    this.x = measure.x;
+    this.y = measure.y;
+    this.width = measure.width;
+    this.height = measure.height;
   }
 
   public pointerUp(cursor: Cursor, hovered: Interactive | null, uml: UML) {
@@ -50,6 +52,7 @@ export class PropertyAccess implements Interactive {
 
   private toggleAccess() {
     this.access = !this.access
+    this.text = this.access ? '+' : '-'
   }
 
   public checkCollision(cursor: Cursor, g: CanvasRenderingContext2D): Interactive | null {
