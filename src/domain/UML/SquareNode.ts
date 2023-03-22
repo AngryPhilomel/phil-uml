@@ -6,6 +6,7 @@ import { Interactive } from "./interfaces";
 import { NodeTitle } from "./NodeTitle";
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 import { NodeProperty } from "./NodeProperty";
+import { Button } from "./Button";
 
 export class SquareNode implements Interactive {
   private id: string;
@@ -16,11 +17,12 @@ export class SquareNode implements Interactive {
     new NodeProperty("property2"),
     new NodeProperty("property3"),
   ];
+  private addPropertyButton: Button = new Button("+", () => this.addNewProperty());
   private dragX: number = 0;
   private dragY: number = 0;
   private padding: number = 50;
   private connectorPadding: number = 100;
-  private rawHeight: number = 21;
+  private rowHeight: number = 21;
   private collisionStrategy: CollisionStrategy = new SquareCollision();
   private connectorPoints: { [direction: string]: ConnectorPoint } = {
     top: new ConnectorPoint(new Top(), this),
@@ -40,19 +42,18 @@ export class SquareNode implements Interactive {
   }
 
   public draw(g: CanvasRenderingContext2D) {
+    let x = this.x;
+    let y = this.y;
     this.updateSize();
     this.drawNode(g);
-    this.title.draw(g, this.x, this.y, this.width, this.height);
-    this.drawSeparator(g, this.x, this.y + this.title.height, this.width)
-    this.properties.forEach((property, index) => {
-      property.draw(
-        g,
-        this.x,
-        this.y + this.title.height + index * 20,
-        this.width,
-        this.height
-      );
+    this.title.draw(g, x, y, this.width, this.height);
+    y = y + this.title.height;
+    this.drawSeparator(g, x, y, this.width);
+    this.properties.forEach((property) => {
+      property.draw(g, x, y, this.width, this.height);
+      y = y + this.rowHeight;
     });
+    this.addPropertyButton.draw(g, x, y, this.width, this.height);
   }
 
   private drawSeparator(
@@ -68,7 +69,10 @@ export class SquareNode implements Interactive {
   }
 
   private updateSize() {
-    this.height = this.title.height + this.rawHeight * this.properties.length;
+    this.height =
+      this.title.height +
+      this.rowHeight * this.properties.length +
+      this.addPropertyButton.height;
     this.width =
       Math.max(this.title.width, ...this.properties.map((p) => p.width)) +
       this.padding;
@@ -104,11 +108,15 @@ export class SquareNode implements Interactive {
 
       const connector = this.checkConnectorPointsCollisions(cursor, g);
       if (connector) return connector;
-
       const title = this.checkTitleCollision(cursor, g);
       if (title) return title;
       const property = this.checkPropertyCollision(cursor, g);
       if (property) return property;
+      const addPropertyButton = this.addPropertyButton.checkCollision(
+        cursor,
+        g
+      );
+      if (addPropertyButton) return addPropertyButton;
       this.hover();
       return this;
     } else {
@@ -137,9 +145,11 @@ export class SquareNode implements Interactive {
     cursor: Cursor,
     g: CanvasRenderingContext2D
   ): Interactive | null {
-    return this.properties.map((property) => {
-      return property.checkCollision(cursor, g);
-    }).filter((coll) => coll)[0];
+    return this.properties
+      .map((property) => {
+        return property.checkCollision(cursor, g);
+      })
+      .filter((coll) => coll)[0];
   }
 
   private hover() {
@@ -162,6 +172,10 @@ export class SquareNode implements Interactive {
 
   public pointerUp(cursor: Cursor, hover: Interactive | null, uml: UML) {
     return;
+  }
+
+  private addNewProperty() {
+    this.properties.push(new NodeProperty("property"));
   }
 
   public connectToTop(): Point[] {
