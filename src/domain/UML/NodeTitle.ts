@@ -1,5 +1,6 @@
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 import { Cursor } from "./Cursor";
+import { Input } from "./Input";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
 
@@ -57,27 +58,18 @@ export class NodeTitle implements Interactive {
   }
 
   private createInput(cursor: Cursor) {
-    const input: HTMLInputElement = document.createElement("input");
-    input.value = this.text;
-    input.type = "text";
-    input.style.top = this.y + cursor.dY + "px";
-    input.style.left = this.x + cursor.dX + "px";
-    input.style.width = this.width + "px";
-    input.style.minWidth = this.width + "px";
-    input.autofocus = true;
-    input.addEventListener("mousemove", (e) => {
-      input.focus();
-    });
-    input.addEventListener("input", (e) => {
-      input.style.width = (e.target as HTMLInputElement).value.length + "ch";
-    });
-    input.addEventListener("blur", (e) => {
-      const text = (e.target as HTMLInputElement).value;
-      if (text.length > 0) {
-        this.text = text;
-      }
-      input.remove();
-    });
-    cursor.canvas.parentElement?.prepend(input);
+    const updateText = (text: string) => {
+      this.text = text;
+      console.log(text);
+    };
+    new Input().createInput(
+      cursor,
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      this.text,
+      updateText
+    );
   }
 }
