@@ -13,11 +13,13 @@ export class SquareNode implements Interactive {
   private initColor: string = "blue";
   private title: NodeTitle = new NodeTitle("Title");
   private properties: NodeProperty[] = [
-    new NodeProperty("property1property1", false),
-    new NodeProperty("property2"),
-    new NodeProperty("property3"),
+    new NodeProperty("property1property1", false, this),
+    new NodeProperty("property2", true, this),
+    new NodeProperty("property3", true, this),
   ];
-  private addPropertyButton: Button = new Button("+", () => this.addNewProperty());
+  private addPropertyButton: Button = new Button("✚", () =>
+    this.addNewProperty()
+  );
   private dragX: number = 0;
   private dragY: number = 0;
   private padding: number = 50;
@@ -152,6 +154,14 @@ export class SquareNode implements Interactive {
       .filter((coll) => coll)[0];
   }
 
+  public deleteProperty(id: string) {
+    console.log('DELETE')
+    this.properties = this.properties.filter((property) => {
+      console.log(property.id, id)
+      return property.id !== id;
+    });
+  }
+
   private hover() {
     this.color = "blue";
   }
@@ -175,7 +185,7 @@ export class SquareNode implements Interactive {
   }
 
   private addNewProperty() {
-    this.properties.push(new NodeProperty("property"));
+    this.properties.push(new NodeProperty("property", true, this));
   }
 
   public connectToTop(): Point[] {

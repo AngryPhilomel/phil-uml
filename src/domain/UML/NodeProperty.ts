@@ -1,12 +1,16 @@
+import { Button } from "./Button";
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 import { Cursor } from "./Cursor";
 import { Input } from "./Input";
 import { PropertyAccess } from "./PropertyAccess";
+import { SquareNode } from "./SquareNode";
 import { AlignLeft, TextRender } from "./TextRender";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
+import { nanoid } from "nanoid";
 
 export class NodeProperty implements Interactive {
+  public id: string = nanoid();
   private textRender: TextRender = new TextRender(new AlignLeft());
   private padding: number = 5;
   private x: number = 0;
@@ -16,8 +20,16 @@ export class NodeProperty implements Interactive {
   private leftMargin: number = 30;
   private collisionStrategy: CollisionStrategy = new SquareCollision();
   public propertyAccess: PropertyAccess;
-  constructor(private text: string, private access: boolean = true) {
+  private deletePropertyButton;
+  constructor(
+    private text: string,
+    private access: boolean = true,
+    private parent: SquareNode
+  ) {
     this.propertyAccess = new PropertyAccess(access);
+    this.deletePropertyButton = new Button("❌", () => {
+      parent.deleteProperty(this.id);
+    });
   }
 
   public draw(
@@ -39,9 +51,12 @@ export class NodeProperty implements Interactive {
     );
     this.x = measure.x;
     this.y = measure.y;
-    this.width = measure.width;
+    this.width = measure.width + 20;
     this.height = measure.height;
+
     this.propertyAccess.draw(g, x, y, width, height);
+
+    this.deletePropertyButton.draw(g, x + width - 30, y, 20, height);
   }
 
   public pointerUp(cursor: Cursor, hovered: Interactive | null, uml: UML) {}
@@ -56,6 +71,11 @@ export class NodeProperty implements Interactive {
   ): Interactive | null {
     const access = this.propertyAccess.checkCollision(cursor, g);
     if (access) return this.propertyAccess;
+    const deletePropertyButton = this.deletePropertyButton.checkCollision(
+      cursor,
+      g
+    );
+    if (deletePropertyButton) return deletePropertyButton;
     return this.collisionStrategy.checkCollision(cursor, {
       x: this.x,
       y: this.y,
