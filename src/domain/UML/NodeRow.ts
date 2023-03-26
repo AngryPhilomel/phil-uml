@@ -2,14 +2,14 @@ import { Button } from "./Button";
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 import { Cursor } from "./Cursor";
 import { Input } from "./Input";
-import { PropertyAccess } from "./PropertyAccess";
+import { AccessModifier } from "./AccessModifier";
 import { SquareNode } from "./SquareNode";
 import { AlignLeft, TextRender } from "./TextRender";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
 import { nanoid } from "nanoid";
 
-export class NodeProperty implements Interactive {
+export class NodeRow implements Interactive {
   public id: string = nanoid();
   private textRender: TextRender = new TextRender(new AlignLeft());
   private padding: number = 5;
@@ -19,16 +19,19 @@ export class NodeProperty implements Interactive {
   public height: number = 0;
   private leftMargin: number = 30;
   private collisionStrategy: CollisionStrategy = new SquareCollision();
-  public propertyAccess: PropertyAccess;
-  private deletePropertyButton;
+  public accessModifier: AccessModifier;
+  private deleteButton;
   constructor(
     private text: string,
-    private access: boolean = true,
+    access: boolean,
+    private method: boolean,
     private parent: SquareNode
   ) {
-    this.propertyAccess = new PropertyAccess(access);
-    this.deletePropertyButton = new Button("❌", () => {
-      parent.deleteProperty(this.id);
+    this.accessModifier = new AccessModifier(access);
+    this.deleteButton = new Button("❌", () => {
+      this.method
+        ? this.parent.deleteMethod(this.id)
+        : this.parent.deleteProperty(this.id);
     });
   }
 
@@ -54,9 +57,21 @@ export class NodeProperty implements Interactive {
     this.width = measure.width + 20;
     this.height = measure.height;
 
-    this.propertyAccess.draw(g, x, y, width, height);
+    this.accessModifier.draw(g, x, y, width, height);
 
-    this.deletePropertyButton.draw(g, x + width - 30, y, 20, height);
+    this.method &&
+      new TextRender(new AlignLeft()).draw(
+        g,
+        measure.x + measure.width,
+        y + 2,
+        0,
+        0,
+        0,
+        0,
+        "()"
+      );
+
+    this.deleteButton.draw(g, x + width - 25, y, 20, height);
   }
 
   public pointerUp(cursor: Cursor, hovered: Interactive | null, uml: UML) {}
@@ -69,12 +84,9 @@ export class NodeProperty implements Interactive {
     cursor: Cursor,
     g: CanvasRenderingContext2D
   ): Interactive | null {
-    const access = this.propertyAccess.checkCollision(cursor, g);
-    if (access) return this.propertyAccess;
-    const deletePropertyButton = this.deletePropertyButton.checkCollision(
-      cursor,
-      g
-    );
+    const access = this.accessModifier.checkCollision(cursor, g);
+    if (access) return this.accessModifier;
+    const deletePropertyButton = this.deleteButton.checkCollision(cursor, g);
     if (deletePropertyButton) return deletePropertyButton;
     return this.collisionStrategy.checkCollision(cursor, {
       x: this.x,

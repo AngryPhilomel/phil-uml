@@ -33,7 +33,7 @@ export class Button implements Interactive {
   }
 
   public pointerUp(cursor: Cursor, hovered: Interactive | null, uml: UML) {
-    this.onClick()
+    this.onClick();
   }
   public pointerDown(cursor: Cursor) {}
   public drag(cursor: Cursor, ctx: CanvasRenderingContext2D) {}

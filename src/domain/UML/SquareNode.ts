@@ -5,21 +5,19 @@ import UML from "./UML";
 import { Interactive } from "./interfaces";
 import { NodeTitle } from "./NodeTitle";
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
-import { NodeProperty } from "./NodeProperty";
+import { NodeRow } from "./NodeRow";
 import { Button } from "./Button";
 
 export class SquareNode implements Interactive {
   private id: string;
   private initColor: string = "blue";
   private title: NodeTitle = new NodeTitle("Title");
-  private properties: NodeProperty[] = [
-    new NodeProperty("property1property1", false, this),
-    new NodeProperty("property2", true, this),
-    new NodeProperty("property3", true, this),
-  ];
+  private properties: NodeRow[] = [new NodeRow("property", false, false, this)];
   private addPropertyButton: Button = new Button("✚", () =>
     this.addNewProperty()
   );
+  private methods: NodeRow[] = [new NodeRow("method", true, true, this)];
+  private addMethodButton: Button = new Button("✚", () => this.addNewMethod());
   private dragX: number = 0;
   private dragY: number = 0;
   private padding: number = 50;
@@ -56,6 +54,13 @@ export class SquareNode implements Interactive {
       y = y + this.rowHeight;
     });
     this.addPropertyButton.draw(g, x, y, this.width, this.height);
+    y = y + this.rowHeight;
+    this.drawSeparator(g, x, y, this.width);
+    this.methods.forEach((methods) => {
+      methods.draw(g, x, y, this.width, this.height);
+      y = y + this.rowHeight;
+    });
+    this.addMethodButton.draw(g, x, y, this.width, this.height);
   }
 
   private drawSeparator(
@@ -64,6 +69,7 @@ export class SquareNode implements Interactive {
     y: number,
     width: number
   ) {
+    g.strokeStyle = this.color;
     g.beginPath();
     g.moveTo(x, y);
     g.lineTo(x + width, y);
@@ -73,11 +79,15 @@ export class SquareNode implements Interactive {
   private updateSize() {
     this.height =
       this.title.height +
-      this.rowHeight * this.properties.length +
-      this.addPropertyButton.height;
+      this.rowHeight * (this.properties.length + this.methods.length) +
+      this.addPropertyButton.height +
+      this.addMethodButton.height;
     this.width =
-      Math.max(this.title.width, ...this.properties.map((p) => p.width)) +
-      this.padding;
+      Math.max(
+        this.title.width,
+        ...this.properties.map((p) => p.width),
+        ...this.methods.map((m) => m.width)
+      ) + this.padding;
   }
 
   public drawNode(g: CanvasRenderingContext2D) {
@@ -112,13 +122,17 @@ export class SquareNode implements Interactive {
       if (connector) return connector;
       const title = this.checkTitleCollision(cursor, g);
       if (title) return title;
-      const property = this.checkPropertyCollision(cursor, g);
+      const property = this.checkPropertiesCollision(cursor, g);
       if (property) return property;
+      const method = this.checkMethodsCollision(cursor, g);
+      if (method) return method;
       const addPropertyButton = this.addPropertyButton.checkCollision(
         cursor,
         g
       );
       if (addPropertyButton) return addPropertyButton;
+      const addMethodButton = this.addMethodButton.checkCollision(cursor, g);
+      if (addMethodButton) return addMethodButton;
       this.hover();
       return this;
     } else {
@@ -143,22 +157,41 @@ export class SquareNode implements Interactive {
     return this.title.checkCollision(cursor, g);
   }
 
-  private checkPropertyCollision(
+  private checkPropertiesCollision(
     cursor: Cursor,
     g: CanvasRenderingContext2D
   ): Interactive | null {
-    return this.properties
-      .map((property) => {
-        return property.checkCollision(cursor, g);
+    return this.checkRowCollision(cursor, g, this.properties);
+  }
+
+  private checkMethodsCollision(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D
+  ): Interactive | null {
+    return this.checkRowCollision(cursor, g, this.methods);
+  }
+
+  private checkRowCollision(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D,
+    rows: NodeRow[]
+  ) {
+    return rows
+      .map((row) => {
+        return row.checkCollision(cursor, g);
       })
       .filter((coll) => coll)[0];
   }
 
   public deleteProperty(id: string) {
-    console.log('DELETE')
     this.properties = this.properties.filter((property) => {
-      console.log(property.id, id)
       return property.id !== id;
+    });
+  }
+
+  public deleteMethod(id: string) {
+    this.methods = this.methods.filter((method) => {
+      return method.id !== id;
     });
   }
 
@@ -185,7 +218,11 @@ export class SquareNode implements Interactive {
   }
 
   private addNewProperty() {
-    this.properties.push(new NodeProperty("property", true, this));
+    this.properties.push(new NodeRow("property", true, false, this));
+  }
+
+  private addNewMethod() {
+    this.methods.push(new NodeRow("method", true, true, this));
   }
 
   public connectToTop(): Point[] {

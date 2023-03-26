@@ -4,19 +4,19 @@ import { AlignLeft, TextRender } from "./TextRender";
 import UML from "./UML";
 import { Interactive } from "./interfaces";
 
-export class PropertyAccess implements Interactive {
+export class AccessModifier implements Interactive {
   private textRender: TextRender = new TextRender(new AlignLeft());
   private padding: number = 5;
   private x: number = 0;
   private y: number = 0;
-  public width: number = 0;
-  public height: number = 0;
+  public width: number = 20;
+  public height: number = 20;
   private leftMargin: number = 10;
   private collisionStrategy: CollisionStrategy = new SquareCollision();
   private text: string;
 
   constructor(private access: boolean = true) {
-    this.text = this.access ? '+' : '-'
+    this.text = this.access ? "+" : "-";
   }
 
   public draw(
@@ -38,24 +38,23 @@ export class PropertyAccess implements Interactive {
     );
     this.x = measure.x;
     this.y = measure.y;
-    this.width = measure.width;
-    this.height = measure.height;
   }
 
   public pointerUp(cursor: Cursor, hovered: Interactive | null, uml: UML) {
-    this.toggleAccess()
+    this.toggleAccess();
   }
-  public pointerDown(cursor: Cursor) {
-    
-  }
+  public pointerDown(cursor: Cursor) {}
   public drag(cursor: Cursor, ctx: CanvasRenderingContext2D) {}
 
   private toggleAccess() {
-    this.access = !this.access
-    this.text = this.access ? '+' : '-'
+    this.access = !this.access;
+    this.text = this.access ? "+" : "-";
   }
 
-  public checkCollision(cursor: Cursor, g: CanvasRenderingContext2D): Interactive | null {
+  public checkCollision(
+    cursor: Cursor,
+    g: CanvasRenderingContext2D
+  ): Interactive | null {
     return this.collisionStrategy.checkCollision(cursor, {
       x: this.x,
       y: this.y,
