@@ -9,10 +9,10 @@ export default class UML {
   private cursor: Cursor;
 
   private nodes: SquareNode[] = [
-    new SquareNode(50, 50, 100, 50, "#00FF00"),
-    new SquareNode(300, 100, 100, 50, "#FF0000"),
-    new SquareNode(300, 250, 100, 100, "#FF00FF"),
-    new SquareNode(50, 250, 100, 50, "#00FFFF"),
+    new SquareNode(50, 50, 100, 50, "#00FF00", this),
+    new SquareNode(300, 100, 100, 50, "#FF0000", this),
+    new SquareNode(300, 250, 100, 100, "#FF00FF", this),
+    new SquareNode(50, 250, 100, 50, "#00FFFF", this),
   ];
 
   private connectors: Connector[] = [
@@ -44,7 +44,7 @@ export default class UML {
       console.log(this.hovered);
     });
     this.canvas.canvasElement.addEventListener("dblclick", (e) => {
-      e.preventDefault()
+      e.preventDefault();
     });
 
     window.requestAnimationFrame(() => this.animate());
@@ -58,13 +58,13 @@ export default class UML {
       this.connectors.forEach((connector) => {
         connector.draw(this.canvas.ctx);
       });
-      this.active?.drag(this.cursor, this.canvas.ctx)
-      this.hovered = node.checkCollision(this.cursor, this.canvas.ctx) || this.hovered;
+      this.active?.drag(this.cursor, this.canvas.ctx);
+      this.hovered =
+        node.checkCollision(this.cursor, this.canvas.ctx) || this.hovered;
       if (!this.hovered?.checkCollision(this.cursor, this.canvas.ctx)) {
         this.hovered = null;
       }
     });
-    
 
     this.cursor?.draw(this.canvas.ctx);
 
@@ -72,12 +72,21 @@ export default class UML {
   }
 
   public addNewNode() {
-    this.nodes.push(new SquareNode(10, 10, 100, 50, this.getRandomColor()));
+    this.nodes.push(
+      new SquareNode(10, 10, 100, 50, this.getRandomColor(), this)
+    );
   }
 
-  public addNewConnector(from:SquareNode, to:SquareNode) {
+  public deleteNode(id: string) {
+    this.nodes = this.nodes.filter((node) => id !== node.id);
+    this.connectors = this.connectors.filter(
+      (connector) => id !== connector.from.id && id !== connector.to.id
+    );
+  }
+
+  public addNewConnector(from: SquareNode, to: SquareNode) {
     if (from === to) return;
-    this.connectors.push(new Connector(from, to))
+    this.connectors.push(new Connector(from, to));
   }
 
   private getRandomColor(): string {

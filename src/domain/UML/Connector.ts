@@ -2,7 +2,7 @@ import { SquareNode } from "./SquareNode";
 import { Point } from "./shared-types";
 
 export class Connector {
-  constructor(private from: SquareNode, private to: SquareNode) {}
+  constructor(public from: SquareNode, public to: SquareNode) {}
   public draw(g: CanvasRenderingContext2D) {
     const points = this.from.calculateConnectors(this.to);
     this.drawLine(g, points);

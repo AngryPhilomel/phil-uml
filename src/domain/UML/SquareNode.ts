@@ -7,11 +7,15 @@ import { NodeTitle } from "./NodeTitle";
 import { CollisionStrategy, SquareCollision } from "./CollisionStrategy";
 import { NodeRow } from "./NodeRow";
 import { Button } from "./Button";
+import { nanoid } from "nanoid";
 
 export class SquareNode implements Interactive {
-  private id: string;
+  public id: string;
   private initColor: string = "blue";
   private title: NodeTitle = new NodeTitle("Title");
+  private deleteButton: Button = new Button("❌", () =>
+    this.parent.deleteNode(this.id)
+  );
   private properties: NodeRow[] = [new NodeRow("property", false, false, this)];
   private addPropertyButton: Button = new Button("✚", () =>
     this.addNewProperty()
@@ -35,9 +39,10 @@ export class SquareNode implements Interactive {
     private y: number,
     private width: number,
     private height: number,
-    private color: string
+    private color: string,
+    private parent: UML
   ) {
-    this.id = Date.now().toString();
+    this.id = nanoid();
     this.initColor = color;
   }
 
@@ -117,6 +122,15 @@ export class SquareNode implements Interactive {
       })
     ) {
       this.drawConnectorPoints(g);
+      this.deleteButton.draw(
+        g,
+        this.x + this.width - 20,
+        this.y,
+        20,
+        this.height
+      );
+      const deleteButton = this.deleteButton.checkCollision(cursor, g);
+      if (deleteButton) return deleteButton;
 
       const connector = this.checkConnectorPointsCollisions(cursor, g);
       if (connector) return connector;
@@ -133,6 +147,7 @@ export class SquareNode implements Interactive {
       if (addPropertyButton) return addPropertyButton;
       const addMethodButton = this.addMethodButton.checkCollision(cursor, g);
       if (addMethodButton) return addMethodButton;
+
       this.hover();
       return this;
     } else {
